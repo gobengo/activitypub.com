@@ -79,7 +79,7 @@ export const specExample6 = {
 };
 
 export const specOverSectionExampleConversation = [
-  specExample2,
+  // specExample2 omitted because it's semantically the same as specExample3
   specExample3,
   specExample4,
   specExample5,

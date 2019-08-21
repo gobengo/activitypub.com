@@ -23,6 +23,7 @@
     "@types/node": "^12.7.1",
     "@types/react": "^16.9.1",
     "@types/react-dom": "^16.8.5",
+    "activitystreams2": "0.0.2",
     "classnames": "^2.2.6",
     "co-body": "^6.0.0",
     "fp-ts": "^2.0.5",
