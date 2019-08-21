@@ -7,6 +7,7 @@ import Router from "koa-router";
 import serve from "koa-static";
 import React from "react";
 import * as WebSocket from "ws";
+import { specOverSectionExampleConversation } from "../activitypub-examples/activitypubSpecExamples";
 import ApiKoa from "../api/ApiKoa";
 import ErrorRespondingKoaMiddleware from "../koa-middlewares/ErrorRespondingKoaMiddleware";
 import App from "../react-app/App";
@@ -63,7 +64,9 @@ function ActivityPubComWebSocketEventHandler(): IWebSocketServerEventHandler {
       switch (eventName) {
         case WebSocketServerEventName.connection:
           const [webSocket] = args;
-          webSocket.send("Connection Opened");
+          for (const example of specOverSectionExampleConversation) {
+            webSocket.send(JSON.stringify(example));
+          }
           break;
         case WebSocketServerEventName.headers:
           break;
