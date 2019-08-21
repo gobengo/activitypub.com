@@ -1,0 +1,18 @@
+{
+  "peerDependencies": {
+    "@mdx-js/loader": "^1.0.0",
+    "@mdx-js/mdx": "^1.0.0"
+  },
+  "description": "Use mdx with Razzle",
+  "devDependencies": {
+    "razzle": "^3.0.0"
+  },
+  "homepage": "https://github.com/jaredpalmer/razzle#readme",
+  "license": "MIT",
+  "main": "index.js",
+  "name": "razzle-plugin-mdx",
+  "scripts": {
+    "test": "jest"
+  },
+  "version": "3.0.0"
+}
