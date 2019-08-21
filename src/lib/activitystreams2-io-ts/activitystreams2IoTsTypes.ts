@@ -2,6 +2,8 @@ import * as as2 from "activitystreams2";
 import * as t from "io-ts";
 import { PathReporter } from "io-ts/lib/PathReporter";
 
+export type TypeOf<C extends t.Any> = t.TypeOf<C>;
+
 const URI = t.string;
 
 export const Link = t.intersection([

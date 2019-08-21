@@ -10,6 +10,7 @@ import ActivityText from "../../activitystreams2-react/ActivityText";
 import { IGetInitialPropsContext } from "../../after-types/GetInitialPropsContext";
 import PageLayout from "../components/PageLayout";
 import ConfigContext from "../contexts/ConfigContext";
+import DOMWindowContext from "../contexts/DOMWindowContext";
 
 const useStyles = makeStyles(theme => ({}));
 
@@ -29,6 +30,7 @@ interface IActivityStreams2Activity {
 const StreamPage = (props: IStreamPageProps) => {
   // console.log("StreamPage", { props });
   const config = useContext(ConfigContext);
+  const window = useContext(DOMWindowContext);
   const classes = useStyles();
   if (!props.webSocketBaseUrl) {
     throw new Error("webSocketBaseUrl is required");
@@ -67,19 +69,24 @@ const StreamPage = (props: IStreamPageProps) => {
         as2Types.getValidationErrors(as2Types.Activity, parsedMessageData),
       );
     }
+    // tslint:disable-next-line: align
   }, [latestMessage]);
   return (
     <PageLayout>
       <Typography variant="h1">StreamPage</Typography>
-      <Typography variant="body1">Stream of all incoming messages.</Typography>
+      <Typography variant="body1" gutterBottom>
+        Stream of all incoming messages.
+      </Typography>
       <ul>
         {activities.map((activity, index) => {
           return (
             <li key={index}>
-              <ActivityText activity={activity} />
-              <details>
-                <pre>{JSON.stringify(activity, null, 2)}</pre>
-              </details>
+              <Typography component="section">
+                <ActivityText activity={activity} window={window} />
+                <details>
+                  <pre>{JSON.stringify(activity, null, 2)}</pre>
+                </details>
+              </Typography>
             </li>
           );
         })}
@@ -98,3 +105,7 @@ StreamPage.getInitialProps = async (
 };
 
 export default StreamPage;
+
+if (module.hot) {
+  module.hot.accept();
+}

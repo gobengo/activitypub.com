@@ -1,8 +1,10 @@
 import { AfterData, AfterRoot } from "@jaredpalmer/after";
 import { ServerStyleSheets, ThemeProvider } from "@material-ui/styles";
+import { JSDOM } from "jsdom";
 import React, { Component } from "react";
 import { htmlTitle } from "../../config/public";
 import MaterialUiMdxProvider from "./components/MaterialUiMdxProvider";
+import DOMWindowContext from "./contexts/DOMWindowContext";
 import theme from "./theme";
 
 export class Document extends Component<any, any> {
@@ -12,11 +14,13 @@ export class Document extends Component<any, any> {
     const page = await renderPage(
       (App: React.ComponentType<any>) => (props: any) =>
         sheets.collect(
-          <ThemeProvider theme={theme}>
-            <MaterialUiMdxProvider>
-              <App {...props} />
-            </MaterialUiMdxProvider>
-          </ThemeProvider>,
+          <DOMWindowContext.Provider value={new JSDOM().window}>
+            <ThemeProvider theme={theme}>
+              <MaterialUiMdxProvider>
+                <App {...props} />
+              </MaterialUiMdxProvider>
+            </ThemeProvider>
+          </DOMWindowContext.Provider>,
         ),
     );
 
