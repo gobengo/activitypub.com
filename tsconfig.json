@@ -1,9 +1,8 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "allowUnreachableCode": false,
-    "noFallthroughCasesInSwitch": true,
     "allowSyntheticDefaultImports": true,
+    "allowUnreachableCode": false,
     "downlevelIteration": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -11,16 +10,22 @@
     "lib": ["es6", "es2015", "es2017", "dom"],
     "module": "esnext",
     "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noUnusedLocals": false,
-    "sourceMap": true,
-    "strictNullChecks": true,
-    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "*": ["./src/@types/*"]
+    },
     "pretty": true,
+    "sourceMap": true,
+    "strict": true,
+    "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
-    "target": "es2016"
+    "target": "es2016",
+    "typeRoots": ["./node_modules/@types", "./src/@types"]
   },
   "exclude": [
     "acceptance-tests",
@@ -32,6 +37,5 @@
     "scripts",
     "ts-built",
     "webpack"
-  ],
-  "types": ["typePatches", "node", "webpack-env"]
+  ]
 }

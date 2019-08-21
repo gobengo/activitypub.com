@@ -1,11 +1,9 @@
 import http from "http";
-import app from "./server";
+import { IServerModule, ServerModule } from "./lib/server/server";
 
-// Use `app#callback()` method here instead of directly
-// passing `app` as an argument to `createServer` (or use `app#listen()` instead)
-// @see https://github.com/koajs/koa/blob/master/docs/api/index.md#appcallback
-let currentHandler = app.callback();
-const server = http.createServer(currentHandler);
+let currentServerModule: IServerModule = ServerModule();
+const server = http.createServer();
+currentServerModule.install(server);
 
 server.listen(process.env.PORT || 3000, () => {
   console.log("🚀 started");
@@ -13,15 +11,13 @@ server.listen(process.env.PORT || 3000, () => {
 
 if (module.hot) {
   console.log("✅  Server-side HMR Enabled!");
-
-  module.hot.accept(["./server"], () => {
+  module.hot.accept(["./lib/server/server"], () => {
     console.log("🔁  HMR Reloading `./server`...");
-
     try {
-      const newHandler = require("./server").default.callback();
-      server.removeListener("request", currentHandler);
-      server.on("request", newHandler);
-      currentHandler = newHandler;
+      const newServerModule: IServerModule = require("./lib/server/server").ServerModule();
+      currentServerModule.uninstall(server);
+      newServerModule.install(server);
+      currentServerModule = newServerModule;
     } catch (error) {
       console.error(error);
     }

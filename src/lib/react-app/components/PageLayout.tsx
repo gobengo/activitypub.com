@@ -11,7 +11,7 @@ import Instagram from "mdi-material-ui/Instagram";
 import Linkedin from "mdi-material-ui/Linkedin";
 import Twitter from "mdi-material-ui/Twitter";
 import React from "react";
-import { appBarTitle } from "../../config/public";
+import { appBarTitle } from "../../../config/public";
 
 const useStyles = makeStyles(theme => ({
   appBar: {},
@@ -82,7 +82,7 @@ const PageLayout: React.FunctionComponent = props => {
       <style>{`body {margin: 0; }`}</style>
       <AppBar position="static" color="primary" className={classes.appBar}>
         <Toolbar variant="dense">
-          <a href="/" style={{ color: 'inherit', textDecoration: 'none', }}>
+          <a href="/" style={{ color: "inherit", textDecoration: "none" }}>
             <Typography variant="h6">{appBarTitle}</Typography>
           </a>
         </Toolbar>

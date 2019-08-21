@@ -1,7 +1,7 @@
 import { AfterData, AfterRoot } from "@jaredpalmer/after";
 import { ServerStyleSheets, ThemeProvider } from "@material-ui/styles";
 import React, { Component } from "react";
-import { htmlTitle } from "../config/public";
+import { htmlTitle } from "../../config/public";
 import MaterialUiMdxProvider from "./components/MaterialUiMdxProvider";
 import theme from "./theme";
 
@@ -16,7 +16,7 @@ export class Document extends Component<any, any> {
             <MaterialUiMdxProvider>
               <App {...props} />
             </MaterialUiMdxProvider>
-          </ThemeProvider>
+          </ThemeProvider>,
         ),
     );
 
