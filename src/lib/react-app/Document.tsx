@@ -33,7 +33,7 @@ export class Document extends Component<any, any> {
     // get attributes from React Helmet
     const htmlAttrs = helmet.htmlAttributes.toComponent();
     const bodyAttrs = helmet.bodyAttributes.toComponent();
-    const assetStylesheetLink = assets.client.css && (
+    const assetStylesheetLink = assets && assets.client.css && (
       <link rel="stylesheet" href={assets.client.css} />
     );
     return (
@@ -55,12 +55,14 @@ export class Document extends Component<any, any> {
         <body {...bodyAttrs}>
           <AfterRoot />
           <AfterData data={data} />
-          <script
-            type="text/javascript"
-            src={assets.client.js}
-            defer={true}
-            crossOrigin="anonymous"
-          />
+          {assets && assets.client && (
+            <script
+              type="text/javascript"
+              src={assets.client.js}
+              defer={true}
+              crossOrigin="anonymous"
+            />
+          )}
         </body>
       </html>
     );

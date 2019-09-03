@@ -5,24 +5,28 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Launch File",
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
-      "program": "${workspaceFolder}/start",
-      "outFiles": [
-        "${workspaceFolder}/**/*.js"
-      ]
-    },
-    {
-      "type": "node",
-      "request": "attach",
-      "name": "Attach Razzle",
-      "processId": "${command:PickProcess}",
-      "restart": true,
+      "args": ["${relativeFile}"],
+      "runtimeArgs": [
+        "-r", "ts-node/register",
+        "--preserve-symlinks",
+        "--preserve-symlinks-main",
+      ],
+      "cwd": "${workspaceRoot}",
+      "console": "internalConsole",
+      "outputCapture": "std",
+      "protocol": "inspector",
+      "internalConsoleOptions": "openOnSessionStart",
+      "env": {
+        "TS_NODE_IGNORE": "false"
+      },
+      "skipFiles": [
+        "<node_internals>/**/*.js",
+        "${workspaceFolder}/node_modules/tslib/**/*.js"
+      ],
       "sourceMaps": true,
-      "sourceMapPathOverrides": {
-        "webpack:///*": "${workspaceRoot}/*"
-      }
     }
   ]
 }

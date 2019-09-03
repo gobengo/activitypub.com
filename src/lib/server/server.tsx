@@ -5,6 +5,7 @@ import helmet from "koa-helmet";
 import koaMount from "koa-mount";
 import Router from "koa-router";
 import serve from "koa-static";
+import * as path from "path";
 import React from "react";
 import * as WebSocket from "ws";
 import { specOverSectionExampleConversation } from "../activitypub-examples/activitypubSpecExamples";
@@ -18,8 +19,9 @@ import {
   WebSocketServerEventName,
 } from "../ws-server-ts/WebSocketServerEventHandler";
 
-// tslint:disable-next-line: no-var-requires
-const assets = require(process.env.RAZZLE_ASSETS_MANIFEST!);
+const assetManifestPath = process.env.RAZZLE_ASSETS_MANIFEST!;
+const publicDir =
+  process.env.RAZZLE_PUBLIC_DIR! || path.join(__dirname, "../public");
 
 // Initialize `koa-router` and setup a route listening on `GET /*`
 // Logic has been splitted into two chained middleware functions
@@ -27,7 +29,7 @@ const assets = require(process.env.RAZZLE_ASSETS_MANIFEST!);
 const router = new Router();
 router.get("/*", async (ctx: Koa.Context, next) => {
   const markupFromAfterjs = await render({
-    assets,
+    assets: assetManifestPath && require(assetManifestPath),
     req: ctx.req,
     res: ctx.res,
     ...App,
@@ -43,8 +45,8 @@ function ActivityPubComKoa() {
     // @see https://helmetjs.github.io/
     .use(helmet())
     .use(ErrorRespondingKoaMiddleware())
-    // Serve static files located under `process.env.RAZZLE_PUBLIC_DIR`
-    .use(serve(process.env.RAZZLE_PUBLIC_DIR!))
+    // Serve static files in publicDir
+    .use(serve(publicDir))
     .use((ctx, next) => {
       return koaMount("/api", ApiKoa())(ctx, next);
     })
@@ -53,7 +55,7 @@ function ActivityPubComKoa() {
   return koa;
 }
 
-function ActivityPubComWebSocketEventHandler(): IWebSocketServerEventHandler {
+function ActivityPubDotComWebSocketEventHandler(): IWebSocketServerEventHandler {
   return {
     handleEvent(event: WebSocketServerEvent) {
       if (!Array.isArray(event)) {
@@ -96,7 +98,7 @@ export function ServerModule(): IServerModule {
   const install = (server: http.Server) => {
     server.on("request", requestListener);
     const webSocketServer = new WebSocket.Server({ server });
-    const eventHandler = ActivityPubComWebSocketEventHandler();
+    const eventHandler = ActivityPubDotComWebSocketEventHandler();
     addWebSocketEventHandler(webSocketServer, eventHandler);
     webSocketServers.set(server, {
       eventHandler,
