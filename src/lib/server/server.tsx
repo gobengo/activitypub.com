@@ -1,4 +1,5 @@
 import { render } from "@jaredpalmer/after";
+import { Repeater } from "@repeaterjs/repeater";
 import http from "http";
 import Koa from "koa";
 import helmet from "koa-helmet";
@@ -9,8 +10,9 @@ import * as path from "path";
 import React from "react";
 import * as WebSocket from "ws";
 import { specOverSectionExampleConversation } from "../activitypub-examples/activitypubSpecExamples";
-import ApiKoa from "../api/ApiKoa";
+import ApiKoa, { IActivityPubEvent } from "../api/ApiKoa";
 import ErrorRespondingKoaMiddleware from "../koa-middlewares/ErrorRespondingKoaMiddleware";
+import RespondWithPreferredContentTypeKoaMiddleware from "../koa-middlewares/RespondWithPreferredContentTypeKoaMiddleware";
 import App from "../react-app/App";
 import {
   addWebSocketEventHandler,
@@ -18,6 +20,7 @@ import {
   WebSocketServerEvent,
   WebSocketServerEventName,
 } from "../ws-server-ts/WebSocketServerEventHandler";
+import { createDispatchAndEvents, IDispatch } from "./events";
 
 const assetManifestPath = process.env.RAZZLE_ASSETS_MANIFEST!;
 const publicDir =
@@ -38,36 +41,44 @@ router.get("/*", async (ctx: Koa.Context, next) => {
   ctx.body = markupFromAfterjs;
 });
 
-function ActivityPubComKoa() {
+function ActivityPubComKoa(options: {
+  dispatch: IDispatch<IActivityPubEvent>;
+}) {
   // Intialize and configure Koa application
   const koa = new Koa()
     // `koa-helmet` provides security headers to help prevent common, well known attacks
     // @see https://helmetjs.github.io/
     .use(helmet())
     .use(ErrorRespondingKoaMiddleware())
+    .use(RespondWithPreferredContentTypeKoaMiddleware())
     // Serve static files in publicDir
     .use(serve(publicDir))
     .use((ctx, next) => {
-      return koaMount("/api", ApiKoa())(ctx, next);
+      return koaMount("/api", ApiKoa(options))(ctx, next);
     })
     .use(router.routes());
   // .use(router.allowedMethods());
   return koa;
 }
 
-function ActivityPubDotComWebSocketEventHandler(): IWebSocketServerEventHandler {
+function ActivityPubDotComWebSocketEventHandler(options: {
+  events: AsyncGenerator<IActivityPubEvent>;
+}): IWebSocketServerEventHandler {
   return {
-    handleEvent(event: WebSocketServerEvent) {
-      if (!Array.isArray(event)) {
+    async handleEvent(webSocketEvent: WebSocketServerEvent) {
+      if (!Array.isArray(webSocketEvent)) {
         console.warn("Got non-array event");
         return;
       }
-      const [eventName, ...args] = event;
+      const [eventName, ...args] = webSocketEvent;
       switch (eventName) {
         case WebSocketServerEventName.connection:
           const [webSocket] = args;
-          for (const example of specOverSectionExampleConversation) {
-            webSocket.send(JSON.stringify(example));
+          for await (const event of options.events) {
+            if (event.type !== "ActivityPubInboxEvent") {
+              continue;
+            }
+            webSocket.send(JSON.stringify(event.payload.object));
           }
           break;
         case WebSocketServerEventName.headers:
@@ -87,7 +98,11 @@ export interface IServerModule {
 }
 
 export function ServerModule(): IServerModule {
-  const requestListener = ActivityPubComKoa().callback();
+  const { dispatch, events } = createDispatchAndEvents<IActivityPubEvent>();
+  const requestListener = ActivityPubComKoa({
+    dispatch,
+    // events,
+  }).callback();
   const webSocketServers = new WeakMap<
     http.Server,
     {
@@ -98,7 +113,9 @@ export function ServerModule(): IServerModule {
   const install = (server: http.Server) => {
     server.on("request", requestListener);
     const webSocketServer = new WebSocket.Server({ server });
-    const eventHandler = ActivityPubDotComWebSocketEventHandler();
+    const eventHandler = ActivityPubDotComWebSocketEventHandler({
+      events,
+    });
     addWebSocketEventHandler(webSocketServer, eventHandler);
     webSocketServers.set(server, {
       eventHandler,

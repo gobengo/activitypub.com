@@ -11,14 +11,21 @@ export default (): Koa.Middleware => async (ctx, next) => {
   } catch (err) {
     ctx.status = err.status || 500;
     ctx.body = (() => {
+      const message = err.expose ? err.message : "Unexpected error";
       switch (ctx.accepts("json", "html", "text")) {
         case "json":
           return {
-            message: err.message,
+            message,
             type: "Error",
+            ...(err.expose && err.errors && { errors: err.errors }),
           };
         default:
-          return err.message;
+          return [
+            message,
+            ...(err.expose && err.errors ? [err.errors.join("\n")] : []),
+          ]
+            .filter(Boolean)
+            .join("\n");
       }
     })();
     ctx.app.emit("error", err, ctx);

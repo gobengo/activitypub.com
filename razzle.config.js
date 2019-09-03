@@ -30,6 +30,12 @@ module.exports = {
     {
       name: "typescript",
       options: {
+        forkTsChecker: {
+          tsconfig: "tsconfig.razzle.json",
+        },
+        tsLoader: {
+          configFile: "tsconfig.razzle.json",
+        },
         // If this is false/default, it will remove all babel-loaer rules,
         // including the one mdx needs, which will cause mdx plugin to throw.
         useBabel: true,

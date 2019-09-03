@@ -6,13 +6,16 @@ export type TypeOf<C extends t.Any> = t.TypeOf<C>;
 
 const URI = t.string;
 
-export const Link = t.intersection([
-  t.type({
-    type: t.literal("Link"),
-  }),
-  t.partial({
-    href: URI,
-  }),
+export const Link = t.union([
+  t.string,
+  t.intersection([
+    t.type({
+      type: t.literal("Link"),
+    }),
+    t.partial({
+      href: URI,
+    }),
+  ]),
 ]);
 
 // https://www.w3.org/TR/activitystreams-core/#naturalLanguageValues
@@ -34,12 +37,29 @@ const MaybeHasName = t.union([
   }),
 ]);
 
-const AS2Object = t.intersection([
-  MaybeHasName,
-  t.partial({
-    id: t.string,
-  }),
-]);
+type IAS2Object = t.TypeOf<typeof MaybeHasName> & {
+  id?: string;
+  bcc?: Array<t.TypeOf<typeof Link> | IAS2Object>;
+  bto?: Array<t.TypeOf<typeof Link> | IAS2Object>;
+  cc?: Array<t.TypeOf<typeof Link> | IAS2Object>;
+  to?: Array<t.TypeOf<typeof Link> | IAS2Object>;
+};
+
+const AS2Object: t.Type<IAS2Object> = t.recursion("AS2Object", () =>
+  t.intersection([
+    MaybeHasName,
+    t.partial({
+      id: t.string,
+
+      bcc: t.array(AudienceValue),
+      bto: t.array(AudienceValue),
+      cc: t.array(AudienceValue),
+      to: t.array(AudienceValue),
+    }),
+  ]),
+);
+
+const AudienceValue = t.union([Link, AS2Object]);
 
 const ActivityTypeName = t.union([
   t.literal("Activity"),
@@ -52,7 +72,7 @@ export const Activity = t.intersection([
   t.type({
     type: ActivityTypeName,
   }),
-  t.type({
+  t.partial({
     actor: t.union([URI, Link, AS2Object]),
     object: t.union([URI, Link, AS2Object]),
   }),
