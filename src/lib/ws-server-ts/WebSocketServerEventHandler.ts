@@ -9,23 +9,24 @@ export enum WebSocketServerEventName {
 }
 type WebSocketServerConnectionEvent = [
   WebSocketServerEventName.connection,
+  WebSocket.Server,
   WebSocket,
   http.IncomingMessage,
 ];
 type WebSocketServerErrorEvent = [
   WebSocketServerEventName.error,
-  WebSocket,
+  WebSocket.Server,
   Error,
 ];
 type WebSocketServerHeadersEvent = [
   WebSocketServerEventName.headers,
-  WebSocket,
+  WebSocket.Server,
   string[],
   http.IncomingMessage,
 ];
 type WebSocketServerListeningEvent = [
   WebSocketServerEventName.listening,
-  WebSocket,
+  WebSocket.Server,
 ];
 export type WebSocketServerEvent =
   | WebSocketServerConnectionEvent
@@ -41,8 +42,13 @@ function eventHandlerToListener(
   eventName: WebSocketServerEventName,
   handler: IWebSocketServerEventHandler,
 ) {
-  return function(this: WebSocket, ...args: any) {
-    return handler.handleEvent([eventName, ...args] as WebSocketServerEvent);
+  return function(this: WebSocket.Server, ...args: any) {
+    // console.log('eventHandlerToListener', { _this: this, args, eventName });
+    return handler.handleEvent([
+      eventName,
+      this,
+      ...args,
+    ] as WebSocketServerEvent);
   };
 }
 

@@ -1,21 +1,25 @@
 import { Repeater } from "@repeaterjs/repeater";
+import { EventEmitter } from "events";
 
 export type IDispatch<E> = (event: E) => Promise<void>;
 
 export function createDispatchAndEvents<E>(): {
-  events: AsyncGenerator<E>;
+  events: AsyncIterable<E>;
   dispatch: IDispatch<E>;
 } {
-  let push = async (event: E) => {
-    return;
+  const eventEmitter = new EventEmitter();
+  const events = {
+    [Symbol.asyncIterator]() {
+      return new Repeater<E>(async (push, stop) => {
+        eventEmitter.on("event", push);
+        await stop;
+        eventEmitter.off("event", push);
+      });
+    },
   };
-  const events = new Repeater<E>(async (_push, stop) => {
-    push = _push;
-  });
   // eventsEcho.next();
   const dispatch: IDispatch<E> = async event => {
-    const pushResult = await push(event);
-    console.log("pushResult", pushResult);
+    eventEmitter.emit("event", event);
   };
   return { dispatch, events };
 }

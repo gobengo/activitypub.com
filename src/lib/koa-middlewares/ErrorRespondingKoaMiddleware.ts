@@ -8,26 +8,34 @@ import Koa from "koa";
 export default (): Koa.Middleware => async (ctx, next) => {
   try {
     await next();
-  } catch (err) {
-    ctx.status = err.status || 500;
+  } catch (error) {
+    ctx.status = error.status || 500;
     ctx.body = (() => {
-      const message = err.expose ? err.message : "Unexpected error";
+      const message = (() => {
+        if (error.expose) {
+          return error.message;
+        }
+        if ((process.env.NODE_ENV || "").toLowerCase() === "production") {
+          return "Unexpected error";
+        }
+        return error.message;
+      })();
       switch (ctx.accepts("json", "html", "text")) {
         case "json":
           return {
             message,
             type: "Error",
-            ...(err.expose && err.errors && { errors: err.errors }),
+            ...(error.expose && error.errors && { errors: error.errors }),
           };
         default:
           return [
             message,
-            ...(err.expose && err.errors ? [err.errors.join("\n")] : []),
+            ...(error.expose && error.errors ? [error.errors.join("\n")] : []),
           ]
             .filter(Boolean)
             .join("\n");
       }
     })();
-    ctx.app.emit("error", err, ctx);
+    ctx.app.emit("error", error, ctx);
   }
 };
