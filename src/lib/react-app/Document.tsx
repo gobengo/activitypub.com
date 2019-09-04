@@ -55,13 +55,17 @@ export class Document extends Component<any, any> {
         <body {...bodyAttrs}>
           <AfterRoot />
           <AfterData data={data} />
-          {assets && assets.client && (
-            <script
-              type="text/javascript"
-              src={assets.client.js}
-              defer={true}
-              crossOrigin="anonymous"
-            />
+          {Object.entries(assets).map(
+            ([name, asset]: [string, any]) =>
+              name && (
+                <script
+                  key={name}
+                  type="text/javascript"
+                  src={asset.js}
+                  defer={true}
+                  crossOrigin="anonymous"
+                />
+              ),
           )}
         </body>
       </html>
