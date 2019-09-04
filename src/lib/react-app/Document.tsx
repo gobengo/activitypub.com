@@ -55,7 +55,7 @@ export class Document extends Component<any, any> {
         <body {...bodyAttrs}>
           <AfterRoot />
           <AfterData data={data} />
-          {Object.entries(assets).map(
+          {Object.entries(assets || {}).map(
             ([name, asset]: [string, any]) =>
               name && (
                 <script

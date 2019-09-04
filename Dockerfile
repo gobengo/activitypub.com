@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:experimental
-FROM node:10-stretch-slim
+FROM node:12-stretch-slim
 
 ARG NPM_CONFIG_LOGLEVEL
 ENV GIT_SSH_COMMAND="ssh -vvv"
