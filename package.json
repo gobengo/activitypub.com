@@ -47,6 +47,7 @@
     "mdi-material-ui": "^6.3.0",
     "node-fetch": "^2.6.0",
     "node-html-parser": "^1.1.16",
+    "razzle-heroku": "^3.0.0",
     "razzle-plugin-mdx": "file:./packages/razzle-plugin-mdx",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
