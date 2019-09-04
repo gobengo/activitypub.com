@@ -1,2 +1,2 @@
-export const appBarTitle = "Example";
-export const htmlTitle = "Example";
+export const appBarTitle = "ActivityPub";
+export const htmlTitle = "ActivityPub.com";

@@ -26,6 +26,7 @@ import { createDispatchAndEvents, IDispatch } from "./events";
 // tslint:disable-next-line: no-var-requires
 const assets =
   process.env.RAZZLE_ASSETS_MANIFEST! &&
+  // tslint:disable-next-line: no-var-requires
   require(process.env.RAZZLE_ASSETS_MANIFEST!);
 const publicDir =
   process.env.RAZZLE_PUBLIC_DIR! || path.join(__dirname, "../public");
@@ -169,5 +170,5 @@ export function ServerModule(): IServerModule {
 }
 
 if (module.hot) {
-  module.hot.accept(["../api/ApiKoa"]);
+  module.hot.accept(["../api/ApiKoa", "../react-app/App"]);
 }

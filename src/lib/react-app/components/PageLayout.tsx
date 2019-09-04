@@ -62,9 +62,9 @@ const Footer = () => {
         className={classes.footerSecondLine}
       >
         <Grid container justify="center">
-          <Grid item>
+          {/* <Grid item>
             <Copyright />
-          </Grid>
+          </Grid> */}
         </Grid>
       </Grid>
     </footer>

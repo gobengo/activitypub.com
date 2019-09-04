@@ -39,6 +39,9 @@ const MaybeHasName = t.union([
 
 type IAS2Object = t.TypeOf<typeof MaybeHasName> & {
   id?: string;
+  type: string;
+  url?: t.TypeOf<typeof Link>;
+
   bcc?: Array<t.TypeOf<typeof Link> | IAS2Object>;
   bto?: Array<t.TypeOf<typeof Link> | IAS2Object>;
   cc?: Array<t.TypeOf<typeof Link> | IAS2Object>;
@@ -47,9 +50,13 @@ type IAS2Object = t.TypeOf<typeof MaybeHasName> & {
 
 const AS2Object: t.Type<IAS2Object> = t.recursion("AS2Object", () =>
   t.intersection([
+    t.type({
+      type: t.string,
+    }),
     MaybeHasName,
     t.partial({
       id: t.string,
+      url: Link,
 
       bcc: t.array(AudienceValue),
       bto: t.array(AudienceValue),

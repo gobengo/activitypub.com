@@ -55,7 +55,12 @@ const ActivityObject = (props: {
  * ActivityText.
  * Render an Activity as text.
  */
-export default (props: { activity: as2.Activity; window: Window }) => {
+export default (props: {
+  activity: as2.Activity;
+  actor: boolean;
+  window: Window;
+}) => {
+  const showActor = props.actor;
   const activity = props.activity;
   const author = activity.actor;
   const sanitize = useCallback(
@@ -64,8 +69,12 @@ export default (props: { activity: as2.Activity; window: Window }) => {
   );
   return (
     <>
-      {author}:
-      <br />
+      {showActor && (
+        <>
+          {author}:
+          <br />
+        </>
+      )}
       <ActivityObject activity={activity} sanitize={sanitize} />
     </>
   );

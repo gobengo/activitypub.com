@@ -1,22 +1,22 @@
-import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import { Location } from "history";
-import * as iots from "io-ts";
 import React, { useContext, useEffect, useState } from "react";
-import useWebSocket from "react-use-websocket";
 import * as as2Types from "../../activitystreams2-io-ts/activitystreams2IoTsTypes";
-import ActivityText from "../../activitystreams2-react/ActivityText";
+import ActivityCard from "../../activitystreams2-react/ActivityCard";
+import ActivityStream from "../../activitystreams2-react/ActivityStream";
 import { IGetInitialPropsContext } from "../../after-types/GetInitialPropsContext";
 import PageLayout from "../components/PageLayout";
 import ConfigContext from "../contexts/ConfigContext";
-import DOMWindowContext from "../contexts/DOMWindowContext";
 
-const useStyles = makeStyles(theme => ({}));
-
-interface IWSMessage {
-  data: string;
-}
+const useStyles = makeStyles(theme => ({
+  activity: {
+    "&:first-child": {
+      marginTop: 0,
+    },
+    marginTop: "1em",
+  },
+}));
 
 interface IStreamPageProps {
   location: Location;
@@ -29,68 +29,14 @@ interface IActivityStreams2Activity {
 
 const StreamPage = (props: IStreamPageProps) => {
   // console.log("StreamPage", { props });
-  const config = useContext(ConfigContext);
-  const window = useContext(DOMWindowContext);
   const classes = useStyles();
-  if (!props.webSocketBaseUrl) {
-    throw new Error("webSocketBaseUrl is required");
-  }
-  const [sendMessage, latestMessage, readyState] = useWebSocket(
-    `${props.webSocketBaseUrl}${config.streamPathname}`,
-  );
-  const [messages, setMessages] = useState<IWSMessage[]>([]);
-  const [activities, setActivities] = useState<
-    Array<iots.TypeOf<typeof as2Types.Activity>>
-  >([]);
-  useEffect(() => {
-    if (!latestMessage) {
-      return;
-    }
-    setMessages(prev => prev.concat([latestMessage]));
-    const parsedMessageData = (() => {
-      try {
-        return JSON.parse(latestMessage.data);
-      } catch (error) {
-        console.debug("Error parsing ws message data as JSON", error);
-        return;
-      }
-    })();
-    if (!parsedMessageData) {
-      return;
-    }
-    if (as2Types.Activity.is(parsedMessageData)) {
-      setActivities(prev => prev.concat([JSON.parse(latestMessage.data)]));
-    } else {
-      console.warn(
-        "Got ws message that is JSON, but not Activity",
-        parsedMessageData,
-      );
-      console.warn(
-        as2Types.getValidationErrors(as2Types.Activity, parsedMessageData),
-      );
-    }
-    // tslint:disable-next-line: align
-  }, [latestMessage]);
+  const config = useContext(ConfigContext);
   return (
     <PageLayout>
-      <Typography variant="h1">StreamPage</Typography>
-      <Typography variant="body1" gutterBottom>
-        Stream of all incoming messages.
+      <Typography variant="h2" component="h1" gutterBottom>
+        ActivityPub.com Activity Stream
       </Typography>
-      <ul>
-        {activities.map((activity, index) => {
-          return (
-            <li key={index}>
-              <Typography component="section">
-                <ActivityText activity={activity} window={window} />
-                <details>
-                  <pre>{JSON.stringify(activity, null, 2)}</pre>
-                </details>
-              </Typography>
-            </li>
-          );
-        })}
-      </ul>
+      <ActivityStreamPageSection webSocketBaseUrl={props.webSocketBaseUrl} />
     </PageLayout>
   );
 };
@@ -108,4 +54,42 @@ export default StreamPage;
 
 if (module.hot) {
   module.hot.accept();
+}
+
+export function ActivityStreamPageSection(props: {
+  webSocketBaseUrl: string | undefined;
+}) {
+  const classes = useStyles();
+  const config = useContext(ConfigContext);
+  return (
+    <>
+      <Typography variant="body1" component="span">
+        <p>
+          This page shows a real-time stream of all activities received by the
+          ActivityPub.com ActivityPub Inbox.
+        </p>
+        <p>
+          That means you can see here all the (public) objects on the fediverse
+          that include 'https://activitypub.com' in their{" "}
+          <a href="https://www.w3.org/TR/activitystreams-vocabulary/#audienceTargeting">
+            Audience Targeting
+          </a>{" "}
+          properties.
+        </p>
+      </Typography>
+      <ActivityStream
+        url={`${props.webSocketBaseUrl}/${config.streamPathname}`}
+        Empty={() => (
+          <Typography variant="body1">
+            (No activities have streamed in yet. Try posting one!)
+          </Typography>
+        )}
+        Item={({ activity }) => (
+          <div className={classes.activity}>
+            <ActivityCard activity={activity} window={window} />
+          </div>
+        )}
+      />
+    </>
+  );
 }
