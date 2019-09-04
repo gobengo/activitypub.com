@@ -39,22 +39,23 @@ export function ActivityCard(props: {
   const classes = useStyles();
   const [shouldShowJson, setShouldShowJson] = React.useState(false);
   const handleJsonClick = () => setShouldShowJson(!shouldShowJson);
-  const actor = props.activity.actor;
-  const actorName =
-    actor &&
-    (typeof actor === "string"
-      ? actor
-      : actor.type === "Link"
-      ? "href" in actor
-        ? actor.href
+  const author = props.activity.actor || props.activity.attributedTo;
+  const firstAuthor = Array.isArray(author) ? author[0] : author;
+  const authorName =
+    firstAuthor &&
+    (typeof firstAuthor === "string"
+      ? firstAuthor
+      : "type" in firstAuthor && firstAuthor.type === "Link"
+      ? "href" in firstAuthor
+        ? firstAuthor.href
         : undefined
-      : "name" in actor && actor.name);
+      : "name" in firstAuthor && firstAuthor.name);
   return (
     <Card>
       <CardHeader
         avatar={
           <Avatar aria-label="avatar" className={classes.avatar}>
-            {actorName ? actorName[0] : ""}
+            {authorName ? authorName[0] : ""}
           </Avatar>
         }
         // action={
@@ -62,7 +63,7 @@ export function ActivityCard(props: {
         //     <MoreVertIcon />
         //   </IconButton>
         // }
-        title={actorName}
+        title={authorName}
         // subheader="September 14, 2016"
       />
       <CardContent

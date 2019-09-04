@@ -37,6 +37,19 @@ function TestableActivityPubDotComServer() {
 
 @TestFixture("ActivityPubDotComServer")
 export class ActivityPubDotComServerTest {
+  @Test("can discover ActivityPub inbox from /")
+  public async testDiscoverInbox() {
+    await withHttpServer(TestableActivityPubDotComServer())(async ({ url }) => {
+      const response = await fetch(url, {
+        headers: { accept: as2ContentType },
+      });
+      Expect(response.status).toBe(200);
+      Expect(response.headers.get("content-type")).toEqual(as2ContentType);
+      const responseJsonObject = await response.json();
+      Expect(responseJsonObject).toBeTruthy();
+    });
+  }
+
   @Test()
   public async testGetIndex() {
     await withHttpServer(TestableActivityPubDotComServer())(async ({ url }) => {

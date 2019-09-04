@@ -30,7 +30,9 @@ HomePage.getInitialProps = async (
   ctx: IKoaGetInitialPropsContext,
 ): Promise<IHomePageProps> => {
   return {
-    webSocketBaseUrl: `${ctx.req.secure ? 'wss' : 'ws'}://${ctx.req.headers.host}`,
+    webSocketBaseUrl: `${ctx.req.secure ? "wss" : "ws"}://${
+      ctx.req.headers.host
+    }`,
   };
 };
 

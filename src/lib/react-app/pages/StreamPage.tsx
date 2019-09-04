@@ -46,7 +46,9 @@ StreamPage.getInitialProps = async (
 ): Promise<IStreamPageProps> => {
   return {
     location: ctx.location,
-    webSocketBaseUrl: `${ctx.req.secure ? 'wss' : 'ws'}://${ctx.req.headers.host}`,
+    webSocketBaseUrl: `${ctx.req.secure ? "wss" : "ws"}://${
+      ctx.req.headers.host
+    }`,
   };
 };
 

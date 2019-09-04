@@ -10,6 +10,7 @@ import * as path from "path";
 import React from "react";
 import WebSocket from "ws";
 import { specOverSectionExampleConversation } from "../activitypub-examples/activitypubSpecExamples";
+import { as2ContentType, as2ContextUrl } from "../activitystreams2";
 import ApiKoa, { IActivityPubEvent } from "../api/ApiKoa";
 import ErrorRespondingKoaMiddleware from "../koa-middlewares/ErrorRespondingKoaMiddleware";
 // tslint:disable-next-line: max-line-length
@@ -61,9 +62,56 @@ function ActivityPubComKoa(options: {
     .use((ctx, next) => {
       return koaMount("/api", ApiKoa(options))(ctx, next);
     })
+    .use(
+      koaMount(
+        "/",
+        ActivityPubActorKoa({
+          downStreamContentTypes: ["text/html", "text/plain"],
+          inbox: "/api/activitypub/inbox",
+        }),
+      ),
+    )
     .use(router.routes());
   koa.proxy = Boolean(process.env.TRUST_HTTP_PROXY);
   // .use(router.allowedMethods());
+  return koa;
+}
+
+/**
+ * Koa that responds to ActivityStreams 2.0 requests for an ActivityPub actor with info about the inbox and stuff.
+ * This should facilitate other AP servers doing Inbox Delivery: https://www.w3.org/TR/activitypub/#delivery
+ */
+function ActivityPubActorKoa(options: {
+  // url of inbox
+  inbox: string;
+  // if the request prefers content-types in this list, call next() and don't respond here.
+  downStreamContentTypes: string[];
+}): Koa {
+  const koa = new Koa().use(async (ctx, next) => {
+    const preferredContentType = ctx.request.accepts([
+      as2ContentType,
+      ...options.downStreamContentTypes,
+    ]);
+    switch (preferredContentType) {
+      case as2ContentType:
+        // return AP inbox
+        ctx.response.set("content-type", preferredContentType);
+        ctx.body = JSON.stringify(
+          {
+            "@context": as2ContextUrl,
+            inbox: options.inbox,
+            // This is required: https://www.w3.org/TR/activitypub/#actor-objects
+            // But we don't support it yet. Sorry!
+            outbox: "/",
+          },
+          null,
+          2,
+        );
+        return;
+      default:
+    }
+    return next();
+  });
   return koa;
 }
 

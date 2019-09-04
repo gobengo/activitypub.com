@@ -37,10 +37,18 @@ const MaybeHasName = t.union([
   }),
 ]);
 
+const OneOrMore = (T: t.Mixed) => {
+  return t.union([T, t.array(T)]);
+};
+
+type IOneOrMore<T> = T | T[];
+
 type IAS2Object = t.TypeOf<typeof MaybeHasName> & {
   id?: string;
-  type: string;
-  url?: t.TypeOf<typeof Link>;
+  type?: string;
+
+  attributedTo?: IOneOrMore<(typeof Link) | IAS2Object>;
+  url?: IOneOrMore<t.TypeOf<typeof Link>>;
 
   bcc?: Array<t.TypeOf<typeof Link> | IAS2Object>;
   bto?: Array<t.TypeOf<typeof Link> | IAS2Object>;
@@ -50,13 +58,14 @@ type IAS2Object = t.TypeOf<typeof MaybeHasName> & {
 
 const AS2Object: t.Type<IAS2Object> = t.recursion("AS2Object", () =>
   t.intersection([
-    t.type({
-      type: t.string,
-    }),
+    t.type({}),
     MaybeHasName,
     t.partial({
       id: t.string,
-      url: Link,
+      type: t.string,
+
+      attributedTo: OneOrMore(t.union([Link, AS2Object])),
+      url: OneOrMore(Link),
 
       bcc: t.array(AudienceValue),
       bto: t.array(AudienceValue),

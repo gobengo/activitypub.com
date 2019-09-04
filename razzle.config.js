@@ -20,7 +20,7 @@ module.exports = {
         return !(isSrcMap || isVendorBundle);
       },
     }),
-    require('razzle-heroku'),
+    require("razzle-heroku"),
     {
       name: "mdx",
       options: {
