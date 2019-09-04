@@ -49,6 +49,7 @@ router.get("/*", async (ctx: Koa.Context, next) => {
 function ActivityPubComKoa(options: {
   dispatch: IDispatch<IActivityPubEvent>;
 }) {
+  console.log({ RAZZLE_PUBLIC_DIR: process.env.RAZZLE_PUBLIC_DIR });
   // Intialize and configure Koa application
   const koa = new Koa()
     // `koa-helmet` provides security headers to help prevent common, well known attacks
