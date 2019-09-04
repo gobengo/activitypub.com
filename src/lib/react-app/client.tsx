@@ -1,22 +1,30 @@
 import { After, ensureReady } from "@jaredpalmer/after";
 import { ThemeProvider } from "@material-ui/styles";
-import React from "react";
+import * as React from "react";
 import { hydrate } from "react-dom";
 import { BrowserRouter } from "react-router-dom";
 import MaterialUiMdxProvider from "./components/MaterialUiMdxProvider";
+import DOMWindowContext from "./contexts/DOMWindowContext";
 import routes from "./routes";
 import theme from "./theme";
 
 async function main() {
+  const ClientComponent = (props: { children?: React.ReactNode }) => {
+    return (
+      <DOMWindowContext.Provider value={(global as any).window}>
+        <BrowserRouter>
+          <ThemeProvider theme={theme}>
+            <MaterialUiMdxProvider>{props.children}</MaterialUiMdxProvider>
+          </ThemeProvider>
+        </BrowserRouter>
+      </DOMWindowContext.Provider>
+    );
+  };
   await ensureReady(routes).then(data => {
     hydrate(
-      <BrowserRouter>
-        <ThemeProvider theme={theme}>
-          <MaterialUiMdxProvider>
-            <After data={data} routes={routes} />
-          </MaterialUiMdxProvider>
-        </ThemeProvider>
-      </BrowserRouter>,
+      <ClientComponent>
+        <After data={data} routes={routes} />
+      </ClientComponent>,
       document.getElementById("root"),
       () => {
         // [ReHydratation](https://github.com/cssinjs/jss/blob/master/docs/ssr.md)

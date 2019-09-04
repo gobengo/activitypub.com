@@ -24,11 +24,12 @@ export function ActivityStream(props: {
 }) {
   const { Empty, Item } = props;
   const [sendMessage, latestMessage, readyState] = useWebSocket(props.url);
+  // const window = global.window;
   const [messages, setMessages] = useState<IWSMessage[]>([]);
   const [activities, setActivities] = useState<
     Array<as2Types.TypeOf<typeof as2Types.Activity>>
   >([]);
-  useEffect(() => {
+  React.useEffect(() => {
     if (!latestMessage) {
       return;
     }
