@@ -63,6 +63,7 @@ function ActivityPubComKoa(options: {
       return koaMount("/api", ApiKoa(options))(ctx, next);
     })
     .use(router.routes());
+  koa.proxy = Boolean(process.env.TRUST_HTTP_PROXY);
   // .use(router.allowedMethods());
   return koa;
 }

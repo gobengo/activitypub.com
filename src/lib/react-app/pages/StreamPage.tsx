@@ -5,7 +5,7 @@ import React, { useContext, useEffect, useState } from "react";
 import * as as2Types from "../../activitystreams2-io-ts/activitystreams2IoTsTypes";
 import ActivityCard from "../../activitystreams2-react/ActivityCard";
 import ActivityStream from "../../activitystreams2-react/ActivityStream";
-import { IGetInitialPropsContext } from "../../after-types/GetInitialPropsContext";
+import { IKoaGetInitialPropsContext } from "../../after-types/GetInitialPropsContext";
 import PageLayout from "../components/PageLayout";
 import ConfigContext from "../contexts/ConfigContext";
 
@@ -42,11 +42,11 @@ const StreamPage = (props: IStreamPageProps) => {
 };
 
 StreamPage.getInitialProps = async (
-  ctx: IGetInitialPropsContext,
+  ctx: IKoaGetInitialPropsContext,
 ): Promise<IStreamPageProps> => {
   return {
     location: ctx.location,
-    webSocketBaseUrl: `ws://${ctx.req.headers.host}`,
+    webSocketBaseUrl: `${ctx.req.secure ? 'wss' : 'ws'}://${ctx.req.headers.host}`,
   };
 };
 
