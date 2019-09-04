@@ -341,6 +341,7 @@
       echo "Building Dockerfile-based application..."
       # -ssh flag from: https://stackoverflow.com/a/53548076
       DOCKER_BUILDKIT=1 docker build \
+        --progress=plain \
         --ssh default \
         --build-arg NPM_CONFIG_LOGLEVEL="$NPM_CONFIG_LOGLEVEL" \
         --build-arg HTTP_PROXY="$HTTP_PROXY" \
