@@ -5,26 +5,32 @@ import React, { Component } from "react";
 import { htmlTitle } from "../../config/public";
 import MaterialUiMdxProvider from "./components/MaterialUiMdxProvider";
 import DOMWindowContext from "./contexts/DOMWindowContext";
+import PublicConfigContext, {
+  defaultPublicConfig,
+  PublicConfigSsrData,
+} from "./contexts/PublicConfigContext";
 import theme from "./theme";
 
 export class Document extends Component<any, any> {
   public static async getInitialProps({ assets, data, renderPage }: any) {
     const sheets = new ServerStyleSheets();
-
+    const publicConfig = defaultPublicConfig;
     const page = await renderPage(
       (App: React.ComponentType<any>) => (props: any) =>
         sheets.collect(
-          <DOMWindowContext.Provider value={new JSDOM().window}>
-            <ThemeProvider theme={theme}>
-              <MaterialUiMdxProvider>
-                <App {...props} />
-              </MaterialUiMdxProvider>
-            </ThemeProvider>
-          </DOMWindowContext.Provider>,
+          <PublicConfigContext.Provider value={publicConfig}>
+            <DOMWindowContext.Provider value={new JSDOM().window}>
+              <ThemeProvider theme={theme}>
+                <MaterialUiMdxProvider>
+                  <App {...props} />
+                </MaterialUiMdxProvider>
+              </ThemeProvider>
+            </DOMWindowContext.Provider>
+          </PublicConfigContext.Provider>,
         ),
     );
 
-    return { assets, data, sheets, ...page };
+    return { assets, data, sheets, publicConfig, ...page };
   }
 
   public render() {
@@ -55,6 +61,7 @@ export class Document extends Component<any, any> {
         <body {...bodyAttrs}>
           <AfterRoot />
           <AfterData data={data} />
+          <PublicConfigSsrData value={this.props.publicConfig} />
           {Object.entries(assets || {}).map(
             ([name, asset]: [string, any]) =>
               name && (
