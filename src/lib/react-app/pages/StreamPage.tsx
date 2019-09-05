@@ -72,6 +72,42 @@ if (module.hot) {
   module.hot.accept();
 }
 
+function DistbinInstructions(props: {
+  urls: {
+    distbin: string;
+    self: string;
+    webSocket: string;
+  };
+}) {
+  const distbinUrl = props.urls.distbin;
+  const linkToNewDistbinPost = (() => {
+    const distbinUrlWithQuery = new URL(distbinUrl);
+    const query = {
+      "attributedTo.name": "Anonymous",
+      content: `I'm trying out #ActivityPub by posting on ${distbinUrl} in reply to ${props.urls.self} .\n\n`,
+      inReplyTo: props.urls.self,
+    };
+    for (const [key, value] of Object.entries(query)) {
+      distbinUrlWithQuery.searchParams.append(key, value);
+    }
+    return distbinUrlWithQuery.toString();
+  })();
+  return <>
+    <p>
+      Try posting an Activity. How? Use
+      ActivityPub. Use an ActivityPub client to post a social web
+      activity that cc's {props.urls.self}.
+    </p>
+    <p>
+      If you don't already have a favorite ActivityPub client, you can
+      use the really simple one at{" "}
+      <a href={linkToNewDistbinPost}>{props.urls.distbin}</a>.
+      <a href={linkToNewDistbinPost}>This link</a> will even fill out
+      the form there for you so can just hit 'post'.
+    </p>
+  </>;
+}
+
 /**
  * Include an ActivityStream configured for this app.
  * It includes some helpful text when the stream is empty.
@@ -89,24 +125,12 @@ export function ActivityStreamPageSection(props: {
   const selfAbsoluteUrl = urls.self;
   const webSocketUrl = urls.webSocket;
   const classes = useStyles();
-  const linkToNewDistbinPost = (() => {
-    const distbinUrlWithQuery = new URL(distbinUrl);
-    const query = {
-      "attributedTo.name": "Anonymous",
-      content: `I'm trying out #ActivityPub by posting on ${distbinUrl} in reply to ${selfAbsoluteUrl} .\n\n`,
-      inReplyTo: props.urls.self,
-    };
-    for (const [key, value] of Object.entries(query)) {
-      distbinUrlWithQuery.searchParams.append(key, value);
-    }
-    return distbinUrlWithQuery.toString();
-  })();
   return (
     <>
       <Typography variant="body1" component="span">
         <p>
           This page shows a real-time stream of all activities received by the
-          ActivityPub.com ActivityPub Inbox.
+          ActivityPub.com <a href="https://www.w3.org/TR/activitypub/#inbox">ActivityPub Inbox</a>.
         </p>
         <p>
           That means you can see here all the (public) objects on the fediverse
@@ -116,23 +140,13 @@ export function ActivityStreamPageSection(props: {
           </a>{" "}
           properties.
         </p>
+        <DistbinInstructions {...props} />
       </Typography>
       <ActivityStream
         url={props.urls.webSocket}
         Empty={() => (
           <Typography variant="body1" component="span">
-            <p>
-              No activities have streamed in yet. Try posting one. How? Use
-              ActivityPub. Use an ActivityPub client to post a social web
-              activity that cc's {props.urls.self}.
-            </p>
-            <p>
-              If you don't already have a favorite ActivityPub client, you can
-              use the really simple one at{" "}
-              <a href={linkToNewDistbinPost}>{distbinUrl}</a>.
-              <a href={linkToNewDistbinPost}>This link</a> will even fill out
-              the form there for you so can just hit 'post'.
-            </p>
+            <p>No activities have streamed in yet.</p>
           </Typography>
         )}
         Item={({ activity }) => (
