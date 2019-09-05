@@ -12,9 +12,6 @@ import PublicConfigContext from "../contexts/PublicConfigContext";
 
 const useStyles = makeStyles(theme => ({
   activity: {
-    "&:first-child": {
-      marginTop: 0,
-    },
     marginTop: "1em",
   },
 }));
@@ -43,7 +40,7 @@ const StreamPage = (props: IStreamPageProps) => {
         urls={{
           distbin: config.distbinUrl,
           self: props.urls.self,
-          webSocket: `${props.urls.webSocketBase}/${config.streamPathname}`,
+          webSocket: `${props.urls.webSocketBase}${config.streamPathname}`,
         }}
         // distbinUrl={config.distbinUrl}
         // selfAbsoluteUrl={props.selfAbsoluteUrl}

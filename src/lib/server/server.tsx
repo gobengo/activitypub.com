@@ -6,11 +6,13 @@ import helmet from "koa-helmet";
 import koaMount from "koa-mount";
 import Router from "koa-router";
 import serve from "koa-static";
+import { LRUMap } from "lru_map";
 import * as path from "path";
 import React from "react";
 import WebSocket from "ws";
 import { specOverSectionExampleConversation } from "../activitypub-examples/activitypubSpecExamples";
 import { as2ContentType, as2ContextUrl } from "../activitystreams2";
+import * as as2t from "../activitystreams2-io-ts/activitystreams2IoTsTypes";
 import ApiKoa, { IActivityPubEvent } from "../api/ApiKoa";
 import ErrorRespondingKoaMiddleware from "../koa-middlewares/ErrorRespondingKoaMiddleware";
 // tslint:disable-next-line: max-line-length
@@ -49,6 +51,7 @@ router.get("/*", async (ctx: Koa.Context, next) => {
 
 function ActivityPubComKoa(options: {
   dispatch: IDispatch<IActivityPubEvent>;
+  inbox: Iterable<object>;
 }) {
   // Intialize and configure Koa application
   const koa = new Koa()
@@ -180,10 +183,38 @@ export interface IServerModule {
   uninstall(server: http.Server): void;
 }
 
-export function ServerModule(): IServerModule {
+export function ServerModule(
+  options: {
+    inbox?: {
+      maxItems?: number;
+    };
+  } = {},
+): IServerModule {
   const { dispatch, events } = createDispatchAndEvents<IActivityPubEvent>();
+  let activityCounter = 0;
+  type IInboxActivity = as2t.TypeOf<typeof as2t.Activity>;
+  const inboxMaxItems = (options.inbox && options.inbox.maxItems) || 100;
+  const inboxMap = new LRUMap<string, IInboxActivity>(inboxMaxItems, []);
+  const inbox: Iterable<IInboxActivity> = {
+    [Symbol.iterator]() {
+      return inboxMap.values();
+    },
+  };
+  (async function*() {
+    console.log("stateManager: start");
+    for await (const event of events) {
+      console.log("stateManager: event", event.type);
+      switch (event.type) {
+        case "ActivityPubInboxEvent":
+          inboxMap.set(String(++activityCounter), event.payload.object);
+          break;
+        default:
+      }
+    }
+  })().next();
   const requestListener = ActivityPubComKoa({
     dispatch,
+    inbox,
     // events,
   }).callback();
   const webSocketServers = new WeakMap<
@@ -215,6 +246,11 @@ export function ServerModule(): IServerModule {
     }
     server.removeListener("request", requestListener);
   };
+  // const stop = async () => {
+  //   if (typeof stateManager.return === "function") {
+  //     await stateManager.return();
+  //   }
+  // };
   return { install, uninstall };
 }
 

@@ -7,7 +7,7 @@
     "build": "razzle build",
     "prettier": "prettier '{package.json,tsconfig.json,src/**/*.{ts,tsx},razzle.config.js}' --write",
     "test": "alsatian -t 5000 './src/**/*.test.ts'",
-    "tsc": "tsc",
+    "tsc": "tsc --noEmit",
     "tslint": "tslint --project .",
     "start:prod": "NODE_ENV=production node build/server.js"
   },
@@ -44,6 +44,7 @@
     "koa-route": "^3.2.0",
     "koa-router": "^7.4.0",
     "koa-static": "^5.0.0",
+    "lru_map": "^0.3.3",
     "mdi-material-ui": "^6.3.0",
     "node-fetch": "^2.6.0",
     "node-html-parser": "^1.1.16",

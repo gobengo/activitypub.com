@@ -7,7 +7,7 @@ export interface IPublicConfig {
 
 export const defaultPublicConfig: IPublicConfig = {
   distbinUrl: process.env.DISTBIN_URL || "https://distbin.com",
-  streamPathname: "/api/stream",
+  streamPathname: "/api/activitypub/inbox",
 };
 
 const PublicConfigContext = createContext<IPublicConfig>(defaultPublicConfig);

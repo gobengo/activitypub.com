@@ -30,7 +30,7 @@ const HomePage = (props: IHomePageProps) => {
         urls={{
           distbin: config.distbinUrl,
           self: props.urls.self,
-          webSocket: `${props.urls.webSocketBase}/${config.streamPathname}`,
+          webSocket: `${props.urls.webSocketBase}${config.streamPathname}`,
         }}
       />
     </PageLayout>

@@ -41,13 +41,14 @@ const OneOrMore = (T: t.Mixed) => {
   return t.union([T, t.array(T)]);
 };
 
-type IOneOrMore<T> = T | T[];
+export type IOneOrMore<T> = T | T[];
 
-type IAS2Object = t.TypeOf<typeof MaybeHasName> & {
+export type IAS2Object = t.TypeOf<typeof MaybeHasName> & {
   id?: string;
   type?: string;
 
   attributedTo?: IOneOrMore<(typeof Link) | IAS2Object>;
+  published?: string;
   url?: IOneOrMore<t.TypeOf<typeof Link>>;
 
   bcc?: Array<t.TypeOf<typeof Link> | IAS2Object>;
@@ -65,6 +66,8 @@ const AS2Object: t.Type<IAS2Object> = t.recursion("AS2Object", () =>
       type: t.string,
 
       attributedTo: OneOrMore(t.union([Link, AS2Object])),
+      /** xsd:dateTime @see https://www.w3.org/TR/activitystreams-vocabulary/#dfn-published */
+      published: t.string,
       url: OneOrMore(Link),
 
       bcc: t.array(AudienceValue),

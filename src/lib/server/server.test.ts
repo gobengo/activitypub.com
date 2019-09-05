@@ -85,6 +85,19 @@ export class ActivityPubDotComServerTest {
       const responseText = await response.text();
       Expect(response.status).toEqual(201);
       Expect(responseText).toBeTruthy();
+
+      // then we should be able to see it in the inbox
+      const response2 = await fetch(inboxUrl, {
+        headers: { accept: as2ContentType },
+      });
+      Expect(response2.status).toEqual(200);
+      const response2JsonObject = await response2.json();
+      Expect(response2JsonObject).toBeTruthy();
+      Expect(response2JsonObject["@context"]).toEqual(as2ContextUrl);
+      Expect(response2JsonObject.type).toEqual("OrderedCollection");
+      Expect(Array.isArray(response2JsonObject.items)).toEqual(true);
+      const firstInboxItem = response2JsonObject.items[0];
+      Expect(firstInboxItem).toEqual(messageToPost);
     });
   }
 
@@ -123,11 +136,12 @@ export class ActivityPubDotComServerTest {
     });
   }
 
+  @Focus
   @Test("POST /api/activitypub/inbox sends activity down websocket /stream")
   public async testPostInboxWhileConsumingStream() {
     await withHttpServer(TestableActivityPubDotComServer())(async ({ url }) => {
       const inboxUrl = urlModule.resolve(url, "/api/activitypub/inbox");
-      const streamUrl = urlModule.resolve(url, "/stream");
+      const streamUrl = inboxUrl;
       const webSocket = new WebSocket(streamUrl);
       const messagesIterator = webSocketMessages(webSocket);
       const messageToPost = {
