@@ -11,16 +11,9 @@ export default [
   },
   {
     component: asyncComponent({
-      loader: () => import("./pages/SamplePage"),
+      loader: () => import("./pages/InboxPage"),
     }),
     exact: true,
-    path: "/sample",
-  },
-  {
-    component: asyncComponent({
-      loader: () => import("./pages/StreamPage"),
-    }),
-    exact: true,
-    path: "/stream",
+    path: "/inbox",
   },
 ];

@@ -136,7 +136,6 @@ export class ActivityPubDotComServerTest {
     });
   }
 
-  @Focus
   @Test("POST /api/activitypub/inbox sends activity down websocket /stream")
   public async testPostInboxWhileConsumingStream() {
     await withHttpServer(TestableActivityPubDotComServer())(async ({ url }) => {

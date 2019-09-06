@@ -1,18 +1,20 @@
 import React, { createContext } from "react";
 
 export interface IPublicConfig {
+  appBarTitle: string;
+  htmlTitle: string;
   distbinUrl: string;
   streamPathname: string;
 }
 
 export const defaultPublicConfig: IPublicConfig = {
+  appBarTitle: "ActivityPub.com",
   distbinUrl: process.env.DISTBIN_URL || "https://distbin.com",
+  htmlTitle: "ActivityPub.com",
   streamPathname: "/api/activitypub/inbox",
 };
 
 const PublicConfigContext = createContext<IPublicConfig>(defaultPublicConfig);
-
-export default PublicConfigContext;
 
 const publicConfigSsrDataId = "public-config";
 
@@ -38,3 +40,5 @@ export const queryDocumentForPublicConfigSsrData = (
   const parsed = JSON.parse(script.innerHTML);
   return parsed;
 };
+
+export default PublicConfigContext;

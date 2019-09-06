@@ -1,9 +1,7 @@
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
-import { Location } from "history";
 import React, { useContext, useEffect, useState } from "react";
-import * as urlModule from "url";
-import * as as2Types from "../../activitystreams2-io-ts/activitystreams2IoTsTypes";
+import * as urlPackage from "url";
 import ActivityCard from "../../activitystreams2-react/ActivityCard";
 import ActivityStream from "../../activitystreams2-react/ActivityStream";
 import { IGetInitialPropsContext } from "../../after-types/GetInitialPropsContext";
@@ -17,8 +15,9 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-interface IStreamPageProps {
+interface IInboxPageProps {
   urls: {
+    home: string;
     self: string;
     webSocketBase: string;
   };
@@ -28,17 +27,18 @@ interface IActivityStreams2Activity {
   "@context": string;
 }
 
-const StreamPage = (props: IStreamPageProps) => {
-  // console.log("StreamPage", { props });
+const InboxPage = (props: IInboxPageProps) => {
+  // console.log("InboxPage", { props });
   const classes = useStyles();
   const config = useContext(PublicConfigContext);
   return (
     <PageLayout>
       <Typography variant="h2" component="h1" gutterBottom>
-        ActivityPub.com Activity Stream
+        ActivityPub Inbox
       </Typography>
-      <ActivityStreamPageSection
+      <InboxStreamPageSection
         urls={{
+          ...props.urls,
           distbin: config.distbinUrl,
           self: props.urls.self,
           webSocket: `${props.urls.webSocketBase}${config.streamPathname}`,
@@ -51,17 +51,23 @@ const StreamPage = (props: IStreamPageProps) => {
   );
 };
 
-StreamPage.getInitialProps = async (
+InboxPage.getInitialProps = async (
   ctx: IGetInitialPropsContext,
-): Promise<IStreamPageProps> => {
-  return {
-    urls: {
-      self: incomingMessageUrl(ctx.req),
-      webSocketBase: `${incomingMessageIsSecure(ctx.req) ? "wss" : "ws"}://${
-        ctx.req.headers.host
-      }`,
-    },
-  };
+): Promise<IInboxPageProps> => {
+  try {
+    return {
+      urls: {
+        home: new urlPackage.URL("/", incomingMessageUrl(ctx.req)).toString(),
+        self: new urlPackage.URL(incomingMessageUrl(ctx.req)).toString(),
+        webSocketBase: `${incomingMessageIsSecure(ctx.req) ? "wss" : "ws"}://${
+          ctx.req.headers.host
+        }`,
+      },
+    };
+  } catch (error) {
+    console.error("Error in InboxPage.getInitialProps", error);
+    throw error;
+  }
 };
 
 function DistbinInstructions(props: {
@@ -104,10 +110,11 @@ function DistbinInstructions(props: {
  * Include an ActivityStream configured for this app.
  * It includes some helpful text when the stream is empty.
  */
-export function ActivityStreamPageSection(props: {
+export function InboxStreamPageSection(props: {
   urls: {
     distbin: string;
     self: string;
+    home: string;
     webSocket: string;
   };
 }) {
@@ -119,11 +126,12 @@ export function ActivityStreamPageSection(props: {
       <Typography variant="body1" component="span">
         <p>
           This page shows a real-time stream of all activities received by the
-          ActivityPub.com <a href="https://www.w3.org/TR/activitypub/#inbox">ActivityPub Inbox</a>.
+          ActivityPub.com Inbox. You can learn about
+          inboxes <a href="https://www.w3.org/TR/activitypub/#inbox">here</a>.
         </p>
         <p>
           That means you can see here all the (public) objects on the fediverse
-          that include "{props.urls.self}" in their{" "}
+          that include "{props.urls.home}" in their{" "}
           <a href="https://www.w3.org/TR/activitystreams-vocabulary/#audienceTargeting">
             Audience Targeting
           </a>{" "}
@@ -148,7 +156,7 @@ export function ActivityStreamPageSection(props: {
   );
 }
 
-export default StreamPage;
+export default InboxPage;
 
 if (module.hot) {
   module.hot.accept();

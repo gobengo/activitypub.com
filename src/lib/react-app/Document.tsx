@@ -2,7 +2,6 @@ import { AfterData, AfterRoot } from "@jaredpalmer/after";
 import { ServerStyleSheets, ThemeProvider } from "@material-ui/styles";
 import { JSDOM } from "jsdom";
 import React, { Component } from "react";
-import { htmlTitle } from "../../config/public";
 import MaterialUiMdxProvider from "./components/MaterialUiMdxProvider";
 import DOMWindowContext from "./contexts/DOMWindowContext";
 import PublicConfigContext, {
@@ -34,7 +33,7 @@ export class Document extends Component<any, any> {
   }
 
   public render() {
-    const { helmet, assets, data, sheets } = this.props; // 4) Get sheets from props
+    const { helmet, assets, data, sheets, publicConfig } = this.props; // 4) Get sheets from props
 
     // get attributes from React Helmet
     const htmlAttrs = helmet.htmlAttributes.toComponent();
@@ -47,7 +46,7 @@ export class Document extends Component<any, any> {
         <head>
           <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
           <meta charSet="utf-8" />
-          <title>{htmlTitle}</title>
+          <title>{publicConfig.htmlTitle}</title>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           {helmet.title.toComponent()}
           {helmet.meta.toComponent()}
