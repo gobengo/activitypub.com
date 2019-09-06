@@ -28,6 +28,11 @@ export type IActivityPubEvent = IActivityPubInboxEvent;
 export default (options: {
   dispatch: IDispatch<IActivityPubEvent>;
   inbox: Iterable<object>;
+  keypair?: {
+    public: {
+      publicKeyPem: string
+    }
+  };
 }): Koa => {
   const koa = new Koa()
     .use(async (ctx, next) => {
@@ -56,7 +61,10 @@ function ActivityPubInboxKoa(options: {
       koaRoute.get("/")(async ctx => {
         ctx.status = 200;
         ctx.body = {
-          "@context": as2ContextUrl,
+          "@context": [
+            as2ContextUrl,
+            "https://w3id.org/security/v1",
+          ],
           type: "OrderedCollection",
           // tslint:disable-next-line: object-literal-sort-keys
           items: Array.from(options.inbox),
