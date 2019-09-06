@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
     "allowUnreachableCode": false,
     "baseUrl": ".",
     "downlevelIteration": true,
@@ -29,14 +28,9 @@
     "types": ["./src/@types", "node", "webpack-env"]
   },
   "exclude": [
-    "acceptance-tests",
     "build",
-    "jest",
     "node_modules",
     "razzle.config.js",
-    "packages/razzle-plugin-mdx",
-    "scripts",
-    "ts-built",
-    "webpack"
+    "packages/razzle-plugin-mdx"
   ]
 }

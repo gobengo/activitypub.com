@@ -6,7 +6,8 @@ import * as urlModule from "url";
 import * as as2Types from "../../activitystreams2-io-ts/activitystreams2IoTsTypes";
 import ActivityCard from "../../activitystreams2-react/ActivityCard";
 import ActivityStream from "../../activitystreams2-react/ActivityStream";
-import { IKoaGetInitialPropsContext } from "../../after-types/GetInitialPropsContext";
+import { IGetInitialPropsContext } from "../../after-types/GetInitialPropsContext";
+import { incomingMessageIsSecure, incomingMessageUrl } from "../../http/incomingMessage";
 import PageLayout from "../components/PageLayout";
 import PublicConfigContext from "../contexts/PublicConfigContext";
 
@@ -51,26 +52,17 @@ const StreamPage = (props: IStreamPageProps) => {
 };
 
 StreamPage.getInitialProps = async (
-  ctx: IKoaGetInitialPropsContext,
+  ctx: IGetInitialPropsContext,
 ): Promise<IStreamPageProps> => {
   return {
     urls: {
-      self: `${ctx.req.protocol || "http"}://${ctx.req.headers.host}${ctx.req
-        .originalUrl ||
-        ctx.req.url ||
-        ""}`,
-      webSocketBase: `${ctx.req.secure ? "wss" : "ws"}://${
+      self: incomingMessageUrl(ctx.req),
+      webSocketBase: `${incomingMessageIsSecure(ctx.req) ? "wss" : "ws"}://${
         ctx.req.headers.host
       }`,
     },
   };
 };
-
-export default StreamPage;
-
-if (module.hot) {
-  module.hot.accept();
-}
 
 function DistbinInstructions(props: {
   urls: {
@@ -79,12 +71,12 @@ function DistbinInstructions(props: {
     webSocket: string;
   };
 }) {
-  const distbinUrl = props.urls.distbin;
+  const { urls } = props;
   const linkToNewDistbinPost = (() => {
-    const distbinUrlWithQuery = new URL(distbinUrl);
+    const distbinUrlWithQuery = new URL(urls.distbin);
     const query = {
       "attributedTo.name": "Anonymous",
-      content: `I'm trying out #ActivityPub by posting on ${distbinUrl} in reply to ${props.urls.self} .\n\n`,
+      content: `I'm trying out #ActivityPub by posting on ${urls.distbin} in reply to ${props.urls.self} .\n\n`,
       inReplyTo: props.urls.self,
     };
     for (const [key, value] of Object.entries(query)) {
@@ -121,9 +113,6 @@ export function ActivityStreamPageSection(props: {
 }) {
   const { urls } = props;
   const distbinUrl = urls.distbin;
-  console.log({ distbinUrl });
-  const selfAbsoluteUrl = urls.self;
-  const webSocketUrl = urls.webSocket;
   const classes = useStyles();
   return (
     <>
@@ -157,4 +146,10 @@ export function ActivityStreamPageSection(props: {
       />
     </>
   );
+}
+
+export default StreamPage;
+
+if (module.hot) {
+  module.hot.accept();
 }

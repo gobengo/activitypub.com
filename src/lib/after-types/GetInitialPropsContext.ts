@@ -8,10 +8,3 @@ export interface IGetInitialPropsContext {
   history: History;
   location: Location;
 }
-
-export interface IKoaGetInitialPropsContext {
-  req: Koa.Request;
-  res: ServerResponse;
-  history: History;
-  location: Location;
-}

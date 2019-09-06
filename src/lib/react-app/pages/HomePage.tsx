@@ -2,7 +2,8 @@ import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import React from "react";
-import { IKoaGetInitialPropsContext } from "../../after-types/GetInitialPropsContext";
+import { IGetInitialPropsContext } from "../../after-types/GetInitialPropsContext";
+import { incomingMessageIsSecure, incomingMessageUrl } from "../../http/incomingMessage";
 import PageLayout from "../components/PageLayout";
 import PublicConfigContext from "../contexts/PublicConfigContext";
 import { ActivityStreamPageSection } from "../pages/StreamPage";
@@ -38,19 +39,21 @@ const HomePage = (props: IHomePageProps) => {
 };
 
 HomePage.getInitialProps = async (
-  ctx: IKoaGetInitialPropsContext,
+  ctx: IGetInitialPropsContext,
 ): Promise<IHomePageProps> => {
-  return {
-    urls: {
-      self: `${ctx.req.protocol || "http"}://${ctx.req.headers.host}${ctx.req
-        .originalUrl ||
-        ctx.req.url ||
-        ""}`,
-      webSocketBase: `${ctx.req.secure ? "wss" : "ws"}://${
-        ctx.req.headers.host
-      }`,
-    },
-  };
+  try {
+    return {
+      urls: {
+        self: incomingMessageUrl(ctx.req),
+        webSocketBase: `${incomingMessageIsSecure(ctx.req) ? "wss" : "ws"}://${
+          ctx.req.headers.host
+        }`,
+      },
+    };
+  } catch (error) {
+    console.error("Error in HomePage.getInitialProps", error);
+    throw error;
+  }
 };
 
 export default HomePage;
