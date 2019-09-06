@@ -4,13 +4,14 @@ import { Expect, Focus, Test, TestFixture } from "alsatian";
 import { cli } from "alsatian-cli-function";
 import { take, tap, toArray } from "axax";
 import { wait } from "axax/es5/wait";
+import { stripIndent } from "common-tags";
 import * as http from "http";
 import fetch from "node-fetch";
 import * as urlModule from "url";
 import { withHttpServer } from "with-http-server";
 import WebSocket from "ws";
 import { as2PublicAudienceUri } from "../activitystreams2";
-import { ServerModule } from "./server";
+import { IActivityPubServerOptions, ServerModule } from "./server";
 
 const as2ContentType = `application/ld+json; profile="https://www.w3.org/ns/activitystreams"`;
 const as2ContextUrl = "https://www.w3.org/ns/activitystreams";
@@ -29,9 +30,9 @@ const webSocketMessages = (
   return messages;
 };
 
-function TestableActivityPubDotComServer() {
+function TestableActivityPubDotComServer(options?: IActivityPubServerOptions) {
   const server = http.createServer();
-  ServerModule().install(server);
+  ServerModule(options).install(server);
   return server;
 }
 
@@ -46,7 +47,32 @@ export class ActivityPubDotComServerTest {
       Expect(response.status).toBe(200);
       Expect(response.headers.get("content-type")).toEqual(as2ContentType);
       const responseJsonObject = await response.json();
-      Expect(responseJsonObject).toBeTruthy();
+      Expect(responseJsonObject.inbox).toBeTruthy();
+    });
+  }
+
+  @Test("can discover actor public key from /")
+  public async testDiscoverPublicKey() {
+    const examplePublicKeyPem = createExamplePublicKeyPem();
+    await withHttpServer(TestableActivityPubDotComServer({
+      keypair: {
+        public: {
+          publicKeyPem: examplePublicKeyPem,
+        }
+      }
+    }))(async ({ url }) => {
+      const actorUrl = url;
+      const response = await fetch(actorUrl, {
+        headers: { accept: as2ContentType },
+      });
+      Expect(response.status).toBe(200);
+      Expect(response.headers.get("content-type")).toEqual(as2ContentType);
+      const actor = await response.json();
+      const publicKey = actor.publicKey;
+      Expect(publicKey).toBeTruthy();
+      const actorUrlNormalized = new urlModule.URL(actorUrl).toString();
+      Expect(publicKey.id).toEqual(`${actorUrlNormalized}#main-key`);
+      Expect(publicKey.publicKeyPem).toEqual(examplePublicKeyPem);
     });
   }
 
@@ -171,6 +197,20 @@ export class ActivityPubDotComServerTest {
       webSocket.close();
     });
   }
+}
+
+function createExamplePublicKeyPem() {
+  return stripIndent`
+  -----BEGIN PUBLIC KEY-----
+  MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAorYT1kUNBXkAwh6tSclE
+  Uy8f4MKfl8osG+bjPCWoVqJwAMBQOYq2GHQaM1ZoSCr9xlUYLsP6YggZUKrYDHsK
+  QH5f92l5nR3hl5ishFBSjsmh2L9dh8n/eKZpPIwL5MfEQWB1o6nF9WU2brq4e6k6
+  r51I34R0bdxNw6l35mWSB4jqlMFuHUzVmCa4J8B9FKa2lJP4mwipCqU6uLqvuXls
+  sxwfShOH1lG9+vfHuY5WaNk4tGPGsZbA7s6Ote9sDlRHefE22K8kYTsVphJb6xPW
+  dMAsJAMTGry9i+/tar/mm5uKp4sAQwS4z25r941rZb9Z8ivGkVxv3OH8wMwvSwT/
+  +wIDAQAB
+  -----END PUBLIC KEY-----
+  `;
 }
 
 if (require.main === module) {

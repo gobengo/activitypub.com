@@ -14,6 +14,7 @@ import { specOverSectionExampleConversation } from "../activitypub-examples/acti
 import { as2ContentType, as2ContextUrl } from "../activitystreams2";
 import * as as2t from "../activitystreams2-io-ts/activitystreams2IoTsTypes";
 import ApiKoa, { IActivityPubEvent } from "../api/ApiKoa";
+import { incomingMessageUrl } from "../http/incomingMessage";
 import ErrorRespondingKoaMiddleware from "../koa-middlewares/ErrorRespondingKoaMiddleware";
 // tslint:disable-next-line: max-line-length
 import RespondWithPreferredContentTypeKoaMiddleware from "../koa-middlewares/RespondWithPreferredContentTypeKoaMiddleware";
@@ -69,6 +70,7 @@ function ActivityPubComKoa(options: {
       koaMount(
         "/",
         ActivityPubActorKoa({
+          ...options,
           downStreamContentTypes: ["text/html", "text/plain"],
           inbox: "/api/activitypub/inbox",
         }),
@@ -85,10 +87,15 @@ function ActivityPubComKoa(options: {
  * This should facilitate other AP servers doing Inbox Delivery: https://www.w3.org/TR/activitypub/#delivery
  */
 function ActivityPubActorKoa(options: {
-  // url of inbox
-  inbox: string;
   // if the request prefers content-types in this list, call next() and don't respond here.
   downStreamContentTypes: string[];
+  // url of inbox
+  inbox: string;
+  keypair?: {
+    public: {
+      publicKeyPem: string
+    }
+  };
 }): Koa {
   const koa = new Koa().use(async (ctx, next) => {
     const preferredContentType = ctx.request.accepts([
@@ -106,6 +113,12 @@ function ActivityPubActorKoa(options: {
             // This is required: https://www.w3.org/TR/activitypub/#actor-objects
             // But we don't support it yet. Sorry!
             outbox: "/",
+            ...(options.keypair && {
+              publicKey: {
+                id: `${incomingMessageUrl(ctx.req)}#main-key`,
+                publicKeyPem: options.keypair.public.publicKeyPem,
+              }
+            })
           },
           null,
           2,
@@ -183,12 +196,19 @@ export interface IServerModule {
   uninstall(server: http.Server): void;
 }
 
+export interface IActivityPubServerOptions {
+  inbox?: {
+    maxItems?: number;
+  };
+  keypair?: {
+    public: {
+      publicKeyPem: string
+    }
+  };
+}
+
 export function ServerModule(
-  options: {
-    inbox?: {
-      maxItems?: number;
-    };
-  } = {},
+  options: IActivityPubServerOptions = {},
 ): IServerModule {
   const { dispatch, events } = createDispatchAndEvents<IActivityPubEvent>();
   let activityCounter = 0;
@@ -213,6 +233,7 @@ export function ServerModule(
     }
   })().next();
   const requestListener = ActivityPubComKoa({
+    ...options,
     dispatch,
     inbox,
     // events,
