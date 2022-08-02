@@ -7,10 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Extract branch name
+      - name: Extract env name from branch name
         shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-        id: extract_branch
+        run: echo "##[set-output name=environment;]$(echo "$GITHUB_REF" | sed 's|/|-|g')"
+        id: extract_environment
       - uses: actions/setup-node@v2
         with:
           node-version: 14.x
@@ -24,6 +24,6 @@ jobs:
       - uses: pulumi/actions@v3
         with:
           command: preview
-          stack-name: ${{ steps.extract_branch.outputs.branch }}
+          stack-name: ${{ steps.extract_environment.outputs.environment }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
