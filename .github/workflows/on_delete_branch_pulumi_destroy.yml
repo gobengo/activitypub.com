@@ -6,6 +6,10 @@ jobs:
     name: pulumi destroy
     runs-on: ubuntu-latest
     steps:
+      - run: |
+          echo GITHUB_REF=$GITHUB_REF
+          echo "github.ref is ${{ github.ref }}"
+          echo "${{ github.event.ref }} - ${{ github.event.ref_type }}"
       - uses: actions/checkout@v2
       - name: Extract env name from branch name
         shell: bash
