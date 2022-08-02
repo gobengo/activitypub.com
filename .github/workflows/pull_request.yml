@@ -23,7 +23,8 @@ jobs:
       - run: npm install
       - uses: pulumi/actions@v3
         with:
-          command: preview
+          command: up
+          upsert: true
           stack-name: ${{ steps.extract_environment.outputs.environment }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
