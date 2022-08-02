@@ -26,5 +26,7 @@ jobs:
           command: up
           upsert: true
           stack-name: ${{ steps.extract_environment.outputs.environment }}
+          config-map: |
+            cloud:provider: aws
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
