@@ -7,6 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
       - uses: actions/setup-node@v2
         with:
           node-version: 14.x
@@ -20,7 +24,7 @@ jobs:
       - uses: pulumi/actions@v3
         with:
           command: preview
-          stack-name: dev
+          stack-name: ${{ steps.extract_branch.outputs.branch }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
 
