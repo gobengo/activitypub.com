@@ -7,7 +7,7 @@ import { Config, getStack, StackReference } from "@pulumi/pulumi";
 
 const stackConfig = new pulumi.Config("activitypub.com-cloud");
 
-export const service = new cloud.Service("example", {
+export const service = new cloud.Service("webapp", {
     containers: {
         nginx: {
             build: "./app",
@@ -24,9 +24,7 @@ exports.url = service.defaultEndpoint.apply(e => `http://${e.hostname}`);
 // exports.loadBalancer = (service.defaultEndpoint as pulumi.Output<cloudAws.Endpoint>).loadBalancer
 
 const apexDnsStack = new StackReference(stackConfig.require("apex-dns-stack"));
-export const apexZone: pulumi.OutputInstance<aws.route53.Zone> = apexDnsStack.getOutput('apexZone')
-export const apexZoneId = apexDnsStack.getOutput('apexZoneId')
-export const apexZoneName = apexDnsStack.getOutput('apexZoneName')
+const apexZone: pulumi.OutputInstance<aws.route53.Zone> = apexDnsStack.getOutput('apexZone')
 
 export const wwwRecord = new aws.route53.Record(`www-record`, {
     type: 'A',
