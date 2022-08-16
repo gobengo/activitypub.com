@@ -1,11 +1,14 @@
-name: main CD
+name: deploy main -> dev
 on:
   push:
     branches:
       - main
 jobs:
   update:
-    name: Update
+    name: Deploy dev stack to activitypub-dev.com
+    environment:
+      name: dev
+      url: http://activitypub-dev.com
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
