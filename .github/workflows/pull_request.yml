@@ -27,10 +27,13 @@ jobs:
       - run: npm install
       - uses: pulumi/actions@35f51396579b3b55f0741396cff6904ec35d3f09
         with:
-          command: up
+          command: preview
           upsert: true
-          stack-name: ${{ steps.extract_environment.outputs.environment }}
+          stack-name: dev
           config-map: |
+            activitypub.com-cloud:apex-dns-stack:
+              value: gobengo/apex-dns/dev
+              secret: false
             cloud:provider:
               value: aws
               secret: false

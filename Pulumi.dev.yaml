@@ -1,4 +1,5 @@
 config:
+  activitypub.com-cloud:apex-dns-stack: gobengo/apex-dns/dev
   aws:region: us-west-2
   cloud-aws:useFargate: "true"
   cloud:provider: aws
