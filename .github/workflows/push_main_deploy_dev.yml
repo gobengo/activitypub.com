@@ -8,7 +8,7 @@ jobs:
     name: Deploy dev stack to activitypub-dev.com
     environment:
       name: dev
-      url: http://activitypub-dev.com
+      url: http://www.activitypub-dev.com
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
