@@ -29,9 +29,11 @@ jobs:
         with:
           command: preview
           upsert: true
-          stack-name: ${{ steps.extract_environment.outputs.environment }}
+          stack-name: dev
           config-map: |
-            activitypub.com-cloud:apex-dns-stack: gobengo/apex-dns/dev
+            activitypub.com-cloud:apex-dns-stack:
+              value: gobengo/apex-dns/dev
+              secret: false
             cloud:provider:
               value: aws
               secret: false
