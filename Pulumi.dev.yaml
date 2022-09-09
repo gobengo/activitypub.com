@@ -1,5 +1,6 @@
 config:
   activitypub.com-cloud:apex-dns-stack: gobengo/apex-dns/dev
+  activitypub.com-cloud:APP_DID_ALSOKNOWNAS: did:v1:test:nym:z6Mkv7bUt5MAvbkcqMPAqtPZKXZkeKxCzKzrdvNWdyTeYCsJ
   aws:region: us-west-2
   cloud-aws:useFargate: "true"
   cloud:provider: aws

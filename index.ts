@@ -13,6 +13,9 @@ const service = new cloud.Service("webapp", {
             build: "./app",
             memory: 128,
             ports: [{ port: 80 }],
+            environment: {
+                APP_DID_ALSOKNOWNAS: stackConfig.require('APP_DID_ALSOKNOWNAS')
+            }
         },
     },
     replicas: 2,
