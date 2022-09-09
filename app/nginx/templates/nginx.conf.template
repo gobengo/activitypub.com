@@ -1,0 +1,15 @@
+server { 
+  listen 80;
+  server_name frontend;
+  ssi on;
+  location = / {
+    set $benvar "${BENVAR}";
+    set $inc $request_uri;
+    # autoindex on;
+    index index.html index.shtml;
+    try_files $uri /index.html;
+  }
+  location ~ /\.well-known { 
+    allow all;
+  }
+}
