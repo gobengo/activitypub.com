@@ -1,11 +1,11 @@
 FROM node:18-alpine as build-image
+RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 COPY package*.json ./
 COPY tsconfig.json ./
 COPY ./src ./src
 RUN npm ci
-RUN npm i --save-dev typescript
-RUN npx tsc
+RUN npm run build --if-present
 
 FROM node:18-alpine
 WORKDIR /usr/src/app

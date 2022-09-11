@@ -13,5 +13,5 @@
     "forceConsistentCasingInFileNames": true
   },
   "files": ["index.ts"],
-  "references": [{ "path": "../apex-dns" }]
+  "references": [{ "path": "./apex-dns/tsconfig.json" }]
 }
