@@ -26,10 +26,9 @@ on:
         default: dev
 jobs:
   update:
-    name: Deploy dev stack to activitypub-dev.com
+    name: pulumi up --stack ${{ inputs.pulumi_stack_name }}
     environment:
       name: ${{ inputs.pulumi_stack_name }}
-      url: http://www.activitypub-dev.com
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
