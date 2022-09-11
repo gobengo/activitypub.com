@@ -1,4 +1,4 @@
-name: deploy ${{ inputs.pulumi_stack_name }}
+name: deploy prod
 on:
   workflow_dispatch:
     inputs:
