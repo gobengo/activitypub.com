@@ -1,0 +1,3 @@
+config:
+  apex-dns:fqdn: activitypub.com
+  aws:region: us-west-2
