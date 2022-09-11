@@ -25,16 +25,16 @@ const apexCertificateValidation = new aws.acm.CertificateValidation("apexCertifi
 });
 
 // www https
-const wwwCertificate = new aws.acm.Certificate("wwwCertificate", {
-    domainName: wwwName,
-    validationMethod: "DNS",
-});
-export const wwwCertificateStatus = wwwCertificate.status
-const wwwCertificateValidationRecords = validationRecordsFqdnsForCertificate(wwwCertificate);
-const wwwCertificateValidation = new aws.acm.CertificateValidation("wwwCertificateValidation", {
-    certificateArn: wwwCertificate.arn,
-    validationRecordFqdns: wwwCertificateValidationRecords.apply(records => records.map(r => r.fqdn)),
-});
+// const wwwCertificate = new aws.acm.Certificate("wwwCertificate", {
+//     domainName: wwwName,
+//     validationMethod: "DNS",
+// });
+// export const wwwCertificateStatus = wwwCertificate.status
+// const wwwCertificateValidationRecords = validationRecordsFqdnsForCertificate(wwwCertificate);
+// const wwwCertificateValidation = new aws.acm.CertificateValidation("wwwCertificateValidation", {
+//     certificateArn: wwwCertificate.arn,
+//     validationRecordFqdns: wwwCertificateValidationRecords.apply(records => records.map(r => r.fqdn)),
+// });
 
 /**
  * Given an ACM certificate, returns a list of Route53 records that must be created in order to validate it

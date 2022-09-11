@@ -13,19 +13,22 @@ on:
         - debug
       pulumi_command:
         description: 'pulumi command'
-        required: false
+        required: true
         type: string
         default: up
       pulumi_stack_name:
         description: 'pulumi stack name'
-        required: false
-        type: string
+        required: true
+        type: choice
+        options:
+        - dev
+        - prod
         default: dev
 jobs:
   update:
     name: Deploy dev stack to activitypub-dev.com
     environment:
-      name: dev
+      name: ${{ inputs.pulumi_stack_name }}
       url: http://www.activitypub-dev.com
     runs-on: ubuntu-latest
     steps:
