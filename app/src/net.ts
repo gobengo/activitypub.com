@@ -28,3 +28,12 @@ export function addressUrl(scheme: string, addressInfo: string | AddressInfo | n
   const urlString = `${scheme}://${host}:${port}`;
   return new URL(urlString);
 }
+
+export function addressPort(addressInfo: string | AddressInfo | null): number {
+  if (addressInfo === null)
+    throw new TypeError("addressInfo is unexpectedly null");
+  if (typeof addressInfo === "string")
+    throw new TypeError("addressInfo is unexpectedly string");
+  const { port } = addressInfo;
+  return port;
+}
