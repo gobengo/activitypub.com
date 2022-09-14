@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
-    "esModuleInterop": true,
-    "outDir": "./dist"
-  }
+    "allowSyntheticDefaultImports": true,
+    "outDir": "./dist",
+    "module": "ES2022",
+    "moduleResolution": "node",
+    "skipLibCheck": true
+  },
+  "include": ["src", "test"]
 }
 
