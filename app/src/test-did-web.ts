@@ -1,7 +1,7 @@
-import { Server } from "net";
+import type { Server } from "net";
 import { addressUrl, withServer } from "./net.js";
-import { Test, TestClass, Tester } from "./test.js";
-import fetch from '@web-std/fetch'
+import type { Test, TestClass, Tester } from "./test.js";
+import fetch from "@web-std/fetch";
 
 /**
  * Test that a server will likely resolve via did:web
