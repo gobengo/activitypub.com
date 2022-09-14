@@ -3,7 +3,8 @@
     "allowSyntheticDefaultImports": true,
     "outDir": "./dist",
     "module": "ES2022",
-		"moduleResolution": "node"
+    "moduleResolution": "node",
+    "skipLibCheck": true
   },
   "include": ["src", "test"]
 }
